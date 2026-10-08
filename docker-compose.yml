@@ -41,5 +41,21 @@ services:
     ports:
       - "3000:80"
 
+  jenkins:
+    profiles: ["cicd"]
+    build: ./jenkins
+    image: quickdrop-jenkins:local
+    user: root
+    environment:
+      JENKINS_ADMIN_PASSWORD: ${JENKINS_ADMIN_PASSWORD:-admin}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    ports:
+      - "8080:8080"
+    volumes:
+      - jenkins_home:/var/jenkins_home
+      - /var/run/docker.sock:/var/run/docker.sock
+
 volumes:
   pgdata:
+  jenkins_home:
