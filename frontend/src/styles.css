@@ -1,12 +1,12 @@
 :root {
-  --brand: #2563eb;
-  --brand-hover: #1d4ed8;
-  --brand-light: #eff6ff;
-  --bg: #f8fafc;
+  --brand: #059669;
+  --brand-hover: #047857;
+  --brand-light: #ecfdf5;
+  --bg: #fafaf9;
   --surface: #ffffff;
-  --text: #0f172a;
-  --text-muted: #64748b;
-  --border: #e2e8f0;
+  --text: #1c1917;
+  --text-muted: #78716c;
+  --border: #e7e5e4;
   --danger: #ef4444;
   --danger-light: #fef2f2;
   --success: #10b981;
@@ -22,7 +22,13 @@
 body { 
   margin: 0; 
   font-family: 'Inter', system-ui, -apple-system, sans-serif; 
-  background: var(--bg); 
+  background-color: var(--bg);
+  background-image: 
+    radial-gradient(at 100% 0%, hsla(152, 69%, 80%, 0.4) 0px, transparent 40%),
+    radial-gradient(at 0% 100%, hsla(39, 100%, 80%, 0.4) 0px, transparent 40%),
+    url("data:image/svg+xml,%3Csvg width='24' height='24' viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='2' cy='2' r='1' fill='%23059669' fill-opacity='0.08'/%3E%3C/svg%3E"),
+    url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.05'/%3E%3C/svg%3E");
+  background-attachment: fixed;
   color: var(--text);
   line-height: 1.5;
 }

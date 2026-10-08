@@ -25,7 +25,14 @@ export default function App() {
   return (
     <>
       <header className="nav">
-        <span className="logo">⚡ QuickDrop</span>
+        <span className="logo">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ marginRight: '8px', color: 'var(--brand)' }}>
+            <path d="M12 22C12 22 20 18 20 12C20 6 12 2 12 2C12 2 4 6 4 12C4 18 12 22 12 22Z" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+            <path d="M12 22V12" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+            <path d="M12 12L16 8" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+          QuickDrop
+        </span>
         <nav>
           <NavLink to="/" end>Shop</NavLink>
           <NavLink to="/cart">Cart ({cartCount})</NavLink>
