@@ -1,0 +1,45 @@
+name: E2E Smoke Test
+
+# Boots the real stack (Postgres + API + nginx frontend) and runs a full rental booking.
+on:
+  push:
+    branches: [main, release]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Start stack
+        run: docker compose up -d --build db backend frontend
+
+      - name: Wait for API
+        run: |
+          for i in $(seq 1 40); do
+            curl -fsS http://localhost:8000/health && exit 0
+            sleep 3
+          done
+          echo "API did not become healthy"; exit 1
+
+      - name: Run booking flow against the API
+        run: scripts/smoke_test.sh http://localhost:8000
+
+      - name: Run booking flow through the nginx proxy
+        run: scripts/smoke_test.sh http://localhost:3000/api
+
+      - name: Frontend is served
+        run: curl -fsS http://localhost:3000/ | grep -qi "RentRide"
+
+      - name: Show logs on failure
+        if: failure()
+        run: docker compose logs --tail=100
+
+      - name: Stop stack
+        if: always()
+        run: docker compose down -v

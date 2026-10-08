@@ -1,0 +1,42 @@
+name: Security Scan
+
+on:
+  pull_request:
+  push:
+    branches: [release]
+  schedule:
+    - cron: "0 4 * * 1"
+
+permissions:
+  contents: read
+
+jobs:
+  dependencies:
+    name: Dependencies and config (Trivy)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: aquasecurity/trivy-action@0.28.0
+        with:
+          scan-type: fs
+          scan-ref: .
+          scanners: vuln,secret,misconfig
+          severity: HIGH,CRITICAL
+          ignore-unfixed: true
+          exit-code: "0"   # report only, never block the pipeline
+
+  images:
+    name: Images (Trivy)
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        service: [backend, frontend]
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker build -t quickdrop-${{ matrix.service }}:scan ./${{ matrix.service }}
+      - uses: aquasecurity/trivy-action@0.28.0
+        with:
+          image-ref: quickdrop-${{ matrix.service }}:scan
+          severity: HIGH,CRITICAL
+          ignore-unfixed: true
+          exit-code: "0"

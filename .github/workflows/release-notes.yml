@@ -1,0 +1,20 @@
+name: Release Notes
+
+# Tag a version (git tag v1.0.0 && git push origin v1.0.0) to publish a GitHub release
+# with notes generated from the merged commits and pull requests.
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Create GitHub release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh release create "${GITHUB_REF_NAME}" --title "RentRide ${GITHUB_REF_NAME}" --generate-notes
