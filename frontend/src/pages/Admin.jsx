@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { api } from "../api.js";
+import { getProductImageUrl, DEFAULT_GROCERY_IMAGE } from "../productImages.js";
 
 const EMPTY = { name: "", description: "", emoji: "🛒", price: "", stock: 0, category_id: "" };
 
@@ -56,15 +57,15 @@ export default function Admin() {
 
   return (
     <>
-      <h2>Admin</h2>
+      <h2>Store Admin</h2>
       {error && <p className="error">{error}</p>}
 
-      <h3>Categories</h3>
+      <h3>Manage Categories</h3>
       <form className="form inline" onSubmit={(e) => { e.preventDefault(); run(api.createCategory(catName)); setCatName(""); }}>
-        <input required placeholder="New category" value={catName} onChange={(e) => setCatName(e.target.value)} />
-        <button type="submit">Add</button>
+        <input required placeholder="New category name (e.g. Organic Produce)" value={catName} onChange={(e) => setCatName(e.target.value)} />
+        <button type="submit">Add Category</button>
       </form>
-      <div className="chips">
+      <div className="chips" style={{ marginTop: "1rem" }}>
         {categories.map((c) => (
           <span className="chip" key={c.id}>
             {c.name}
@@ -74,36 +75,81 @@ export default function Admin() {
         ))}
       </div>
 
-      <h3>{editingId ? `Edit product #${editingId}` : "New product"}</h3>
+      <h3 style={{ marginTop: "2.5rem" }}>{editingId ? `Edit Product #${editingId}` : "Add New Product"}</h3>
       <form className="form" onSubmit={submitProduct}>
-        <input required placeholder="Name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
-        <input placeholder="Description" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
-        <input placeholder="Emoji" value={form.emoji} onChange={(e) => setForm({ ...form, emoji: e.target.value })} />
-        <input required type="number" min="0.01" step="0.01" placeholder="Price" value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} />
-        <input required type="number" min="0" placeholder="Stock" value={form.stock} onChange={(e) => setForm({ ...form, stock: e.target.value })} />
+        <div style={{ display: "grid", gridTemplateColumns: "1fr auto", gap: "1rem", alignItems: "center" }}>
+          <input required placeholder="Product Name (e.g. Fresh Strawberries)" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
+          {form.name && (
+            <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "0.85rem", color: "var(--text-muted)" }}>
+              <span>Preview:</span>
+              <img 
+                src={getProductImageUrl({ name: form.name })} 
+                alt="Preview" 
+                className="product-thumb" 
+                style={{ width: "36px", height: "36px" }}
+              />
+            </div>
+          )}
+        </div>
+        <input placeholder="Short Description" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
+        <div style={{ display: "grid", gridTemplateColumns: "120px 1fr 1fr", gap: "1rem" }}>
+          <input placeholder="Emoji (e.g. 🍓)" value={form.emoji} onChange={(e) => setForm({ ...form, emoji: e.target.value })} />
+          <input required type="number" min="0.01" step="0.01" placeholder="Price ($)" value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} />
+          <input required type="number" min="0" placeholder="Initial Stock" value={form.stock} onChange={(e) => setForm({ ...form, stock: e.target.value })} />
+        </div>
         <select value={form.category_id} onChange={(e) => setForm({ ...form, category_id: e.target.value })}>
           <option value="">No category</option>
           {categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
         </select>
         <div className="actions">
-          <button type="submit">{editingId ? "Save" : "Create"}</button>
-          {editingId && <button type="button" onClick={() => { setEditingId(null); setForm(EMPTY); }}>Cancel</button>}
+          <button type="submit">{editingId ? "Save Changes" : "Create Product"}</button>
+          {editingId && <button type="button" className="secondary" onClick={() => { setEditingId(null); setForm(EMPTY); }}>Cancel</button>}
         </div>
       </form>
 
-      <h3>Products</h3>
+      <h3 style={{ marginTop: "2.5rem" }}>Inventory & Products ({products.length})</h3>
       <table>
-        <thead><tr><th>Name</th><th>Category</th><th>Price</th><th>Stock</th><th></th></tr></thead>
+        <thead>
+          <tr>
+            <th>Product</th>
+            <th>Category</th>
+            <th>Price</th>
+            <th>Stock</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
         <tbody>
           {products.map((p) => (
             <tr key={p.id}>
-              <td>{p.emoji} {p.name}</td>
-              <td>{p.category?.name || "-"}</td>
-              <td>${Number(p.price).toFixed(2)}</td>
-              <td>{p.stock}</td>
               <td>
-                <button onClick={() => edit(p)}>Edit</button>{" "}
-                <button className="danger" onClick={() => run(api.deleteProduct(p.id))}>Delete</button>
+                <div className="product-cell">
+                  <img 
+                    src={getProductImageUrl(p)} 
+                    alt={p.name} 
+                    className="product-thumb"
+                    onError={(e) => {
+                      e.currentTarget.onerror = null;
+                      e.currentTarget.src = DEFAULT_GROCERY_IMAGE;
+                    }}
+                  />
+                  <div>
+                    <div style={{ fontWeight: 600 }}>{p.name}</div>
+                    <small style={{ color: "var(--text-muted)" }}>{p.emoji}</small>
+                  </div>
+                </div>
+              </td>
+              <td>{p.category?.name || "—"}</td>
+              <td><strong>${Number(p.price).toFixed(2)}</strong></td>
+              <td>
+                <span className={`stock-tag ${p.stock === 0 ? "out" : p.stock < 15 ? "low" : ""}`}>
+                  {p.stock} units
+                </span>
+              </td>
+              <td>
+                <div style={{ display: "flex", gap: "0.5rem" }}>
+                  <button className="secondary" style={{ padding: "0.35rem 0.75rem", fontSize: "0.85rem" }} onClick={() => edit(p)}>Edit</button>
+                  <button className="danger" style={{ padding: "0.35rem 0.75rem", fontSize: "0.85rem" }} onClick={() => run(api.deleteProduct(p.id))}>Delete</button>
+                </div>
               </td>
             </tr>
           ))}
