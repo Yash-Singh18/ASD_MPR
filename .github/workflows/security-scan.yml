@@ -15,7 +15,7 @@ jobs:
     name: Dependencies and config (Trivy)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: aquasecurity/trivy-action@0.28.0
         with:
           scan-type: fs
@@ -32,7 +32,7 @@ jobs:
       matrix:
         service: [backend, frontend]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - run: docker build -t quickdrop-${{ matrix.service }}:scan ./${{ matrix.service }}
       - uses: aquasecurity/trivy-action@0.28.0
         with:
