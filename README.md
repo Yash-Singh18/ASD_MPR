@@ -51,7 +51,7 @@ cd backend && python3 -m venv .venv && .venv/bin/pip install -r requirements.txt
 # frontend (proxies /api to localhost:8000)
 cd frontend && npm install && npm run dev
 ```
-## Aaditya
+
 ## Layout
 ```
 backend/      FastAPI app, tests, Dockerfile
